@@ -271,11 +271,29 @@ public class ControllerImplementation implements IController, ActionListener {
         delete.setVisible(true);
     }
 
-    public void handleDeletePerson() {
+   public void handleDeletePerson() {
         if (delete != null) {
-            Person p = new Person(delete.getNif().getText());
-            delete(p);
-            delete.getReset().doClick();
+            // 1. Definir los botones en inglés
+            Object[] options = {"Yes", "No"};
+            
+            // 2. Lanzar el cuadro de confirmación
+            int answer = JOptionPane.showOptionDialog(
+                delete,
+                "Are you sure you want to delete this person?", 
+                delete.getTitle(),
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.WARNING_MESSAGE,
+                null,
+                options,
+                options[1] // Selección por defecto en "No"
+            );
+
+            // 3. Si pulsa "Yes" (posición 0), se ejecuta el borrado
+            if (answer == 0) {
+                Person p = new Person(delete.getNif().getText());
+                delete(p);
+                delete.getReset().doClick();
+            }
         }
     }
 
@@ -439,6 +457,7 @@ public class ControllerImplementation implements IController, ActionListener {
         }
     }
 
+   
     /**
      * This function deletes the Person object with the requested NIF, if it
      * exists. If there is any access problem with the storage device, the
@@ -451,6 +470,15 @@ public class ControllerImplementation implements IController, ActionListener {
         try {
             if (dao.read(p) != null) {
                 dao.delete(p);
+                
+                // CRITERIO AÑADIDO: Mensaje de éxito tras confirmarse el borrado
+                JOptionPane.showMessageDialog(
+                    delete, 
+                    "Person deleted successfully!", 
+                    "Delete - People v1.1.0", 
+                    JOptionPane.INFORMATION_MESSAGE
+                );
+                
             } else {
                 throw new PersonException(p.getNif() + " is not registered and can not "
                         + "be DELETED");
