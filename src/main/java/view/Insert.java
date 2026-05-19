@@ -29,6 +29,7 @@ public class Insert extends javax.swing.JDialog {
     public Insert(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
         initComponents();
+        setDatePickerButtonText(dateOfBirth, "Select a date");
         DropPhotoListener d = new DropPhotoListener(photo, this);
         DropTarget dropTarget = new DropTarget(photo, d);
         insert.setEnabled(false);
@@ -245,6 +246,11 @@ public class Insert extends javax.swing.JDialog {
         dateOfBirth.setMaximumSize(new java.awt.Dimension(350, 22));
         dateOfBirth.setMinimumSize(new java.awt.Dimension(350, 22));
         dateOfBirth.setPreferredSize(new java.awt.Dimension(350, 22));
+        dateOfBirth.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                dateOfBirthActionPerformed(evt);
+            }
+        });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 2;
@@ -329,6 +335,21 @@ public class Insert extends javax.swing.JDialog {
         photo.setIcon(null);
     }//GEN-LAST:event_photoMouseClicked
 
+    private void dateOfBirthActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_dateOfBirthActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_dateOfBirthActionPerformed
+private void setDatePickerButtonText(java.awt.Container container, String text) {
+        for (java.awt.Component c : container.getComponents()) {
+            if (c instanceof javax.swing.JButton) {
+                javax.swing.JButton btn = (javax.swing.JButton) c;
+                btn.setText(text);
+                btn.setPreferredSize(null); // Permite que el botón se estire si el texto es largo
+            } else if (c instanceof java.awt.Container) {
+                java.awt.Container inner = (java.awt.Container) c;
+                setDatePickerButtonText(inner, text); // Sigue buscando en capas más profundas
+            }
+        }
+    }
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private org.jdatepicker.JDatePicker dateOfBirth;
     private javax.swing.JButton insert;
