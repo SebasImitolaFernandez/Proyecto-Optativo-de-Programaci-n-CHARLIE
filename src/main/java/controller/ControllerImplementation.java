@@ -37,6 +37,7 @@ import javax.swing.JButton;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 import org.jdatepicker.DateModel;
+import utils.Constants;
 
 /**
  * This class starts the visual part of the application and programs and manages
@@ -118,26 +119,20 @@ public class ControllerImplementation implements IController, ActionListener {
     private void handleDataStorageSelection() {
         String daoSelected = ((javax.swing.JCheckBox) (dSS.getAccept()[1])).getText();
         dSS.dispose();
-        switch (daoSelected) {
-            case "ArrayList":
-                dao = new DAOArrayList();
-                break;
-            case "HashMap":
-                dao = new DAOHashMap();
-                break;
-            case "File":
-                setupFileStorage();
-                break;
-            case "File (Serialization)":
-                setupFileSerialization();
-                break;
-            case "SQL - Database":
-                setupSQLDatabase();
-                break;
-            case "JPA - Database":
-                setupJPADatabase();
-                break;
+        if (Constants.ARRAY_LIST.equals(daoSelected)) {
+            dao = new DAOArrayList();
+        } else if (Constants.HASH_MAP.equals(daoSelected)) {
+            dao = new DAOHashMap();
+        } else if (Constants.FILE.equals(daoSelected)) {
+            setupFileStorage();
+        } else if (Constants.FILE_SERIALIZABLE.equals(daoSelected)) {
+            setupFileSerialization();
+        } else if (Constants.SQL.equals(daoSelected)) {
+            setupSQLDatabase();
+        } else if (Constants.JPA.equals(daoSelected)) {
+            setupJPADatabase();
         }
+        
         setupMenu();
     }
 
@@ -376,21 +371,21 @@ public class ControllerImplementation implements IController, ActionListener {
         Object[] options = {"Yes", "No"};
         //int answer = JOptionPane.showConfirmDialog(menu, "Are you sure to delete all people registered?", "Delete All - People v1.1.0", 0, 0);
         int answer = JOptionPane.showOptionDialog(
-        menu,
-        "Are you sure you want to delete all registered people?", 
-        "Delete All - People v1.1.0",
-        JOptionPane.YES_NO_OPTION,
-        JOptionPane.WARNING_MESSAGE,
-        null,
-        options,
-        options[1] // Default selection is "No"
-    );
+                menu,
+                "Are you sure you want to delete all registered people?",
+                "Delete All - People v1.1.0",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.WARNING_MESSAGE,
+                null,
+                options,
+                options[1] // Default selection is "No"
+        );
 
         if (answer == 0) {
             deleteAll();
         }
     }
-    
+
     /**
      * This function inserts the Person object with the requested NIF, if it
      * doesn't exist. If there is any access problem with the storage device,

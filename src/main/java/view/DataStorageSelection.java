@@ -188,6 +188,11 @@ public class DataStorageSelection extends javax.swing.JFrame {
 
         accept.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
         accept.setText("Accept");
+        accept.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                acceptActionPerformed(evt);
+            }
+        });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 7;
@@ -283,6 +288,10 @@ public class DataStorageSelection extends javax.swing.JFrame {
     private void cancelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelActionPerformed
         System.exit(0);
     }//GEN-LAST:event_cancelActionPerformed
+
+    private void acceptActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_acceptActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_acceptActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton accept;
