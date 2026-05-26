@@ -28,6 +28,13 @@ public class DAOJPA implements IDAO {
 
     private EntityManagerFactory emf = Persistence.createEntityManagerFactory(Routes.DBO.getDbServerAddress());
 
+    @Override
+    public int count() throws Exception {
+        // Usa el método readAll() para obtener todas las personas
+        // y devuelve el tamaño de la lista
+        return readAll().size();
+    }
+
     private byte[] imageIconToBytes(ImageIcon icon) {
         Image image = icon.getImage();
         BufferedImage bufferedImage = new BufferedImage(
@@ -110,10 +117,11 @@ public class DAOJPA implements IDAO {
         if (pC != null) {
             pC.setName(p.getName());
             pC.setDateOfBirth(p.getDateOfBirth());
-            if(p.getPhoto() != null)
+            if (p.getPhoto() != null) {
                 pC.setPhotoOnlyJPA(imageIconToBytes(p.getPhoto()));
-            else
+            } else {
                 pC.setPhotoOnlyJPA(null);
+            }
             em.getTransaction().commit();
         }
         em.close();
