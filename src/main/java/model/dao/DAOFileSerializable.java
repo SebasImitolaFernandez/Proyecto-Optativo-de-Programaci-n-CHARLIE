@@ -24,6 +24,13 @@ import java.util.ArrayList;
 public class DAOFileSerializable implements IDAO {
 
     @Override
+    public int count() throws Exception {
+        // Usa el método readAll() para obtener todas las personas
+        // y devuelve el tamaño de la lista
+        return readAll().size();
+    }
+
+    @Override
     public Person read(Person p) throws IOException, ClassNotFoundException {
         Person personToRead = null;
         FileInputStream fIS = null;
@@ -60,7 +67,7 @@ public class DAOFileSerializable implements IDAO {
         ObjectInputStream ois = null;
         FileInputStream fIS = null;
         try {
-            
+
             fIS = new FileInputStream(Routes.FILES.getDataFile());
             ois = new ObjectInputStream(fIS);
             Person pr;
@@ -80,7 +87,7 @@ public class DAOFileSerializable implements IDAO {
                 fIS.close();
             }
         }
-        
+
         return people;
     }
 
@@ -102,7 +109,7 @@ public class DAOFileSerializable implements IDAO {
             //Do nothing
 //            System.out.println("El archivo está vacío y no se puede crear"
 //                    + "el objeto ObjectInputStream");
-        }finally {
+        } finally {
             if (ois != null) {
                 ois.close();
             }
@@ -167,7 +174,7 @@ public class DAOFileSerializable implements IDAO {
     }
 
     @Override
-    public void update(Person p) throws FileNotFoundException, IOException, ClassNotFoundException{
+    public void update(Person p) throws FileNotFoundException, IOException, ClassNotFoundException {
         delete(p);
         insert(p);
     }

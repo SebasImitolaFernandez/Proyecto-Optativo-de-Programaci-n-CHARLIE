@@ -17,25 +17,32 @@ public class DAOHashMap implements IDAO {
     HashMap<String, Person> people = new HashMap();
 
     @Override
-    public Person read(Person p){
+    public int count() throws Exception {
+        // Usa el método readAll() para obtener todas las personas
+        // y devuelve el tamaño de la lista
+        return readAll().size();
+    }
+
+    @Override
+    public Person read(Person p) {
         return people.containsKey(p.getNif()) ? people.get(p.getNif()) : null;
     }
-    
+
     @Override
     public void insert(Person p) {
         people.put(p.getNif(), p);
     }
-    
+
     @Override
-    public void delete(Person p){
+    public void delete(Person p) {
         people.remove(p.getNif());
     }
-    
+
     @Override
-    public void deleteAll(){
+    public void deleteAll() {
         people.clear();
     }
-    
+
     @Override
     public void update(Person p) {
         people.replace(p.getNif(), p);

@@ -28,10 +28,18 @@ import javax.swing.ImageIcon;
  * functions so that they can work with files. User data is saved in the
  * "dataFile.txt" file and the associated photos, if any, are saved with the
  * name NIF.png in the "Photos" folder.
+ *
  * @author Francesc Perez
  * @version 1.1.0
  */
 public class DAOFile implements IDAO {
+
+    @Override
+    public int count() throws Exception {
+        // Usa el método readAll() para obtener todas las personas
+        // y devuelve el tamaño de la lista
+        return readAll().size();
+    }
 
     @Override
     public Person read(Person p) throws Exception {
@@ -62,7 +70,7 @@ public class DAOFile implements IDAO {
         br.close();
         return personToRead;
     }
-    
+
     @Override
     public ArrayList<Person> readAll() throws FileNotFoundException, IOException, ParseException {
         ArrayList<Person> people = new ArrayList<>();
@@ -107,7 +115,7 @@ public class DAOFile implements IDAO {
         if (p.getPhoto() != null) {
             FileOutputStream out;
             BufferedOutputStream outB;
-            String fileName = Routes.FILE.getFolderPhotos() + sep + p.getNif() + ".png";         
+            String fileName = Routes.FILE.getFolderPhotos() + sep + p.getNif() + ".png";
             out = new FileOutputStream(fileName);
             outB = new BufferedOutputStream(out);
             BufferedImage bi = new BufferedImage(p.getPhoto().getImage().getWidth(null),
@@ -163,10 +171,11 @@ public class DAOFile implements IDAO {
         file.delete();
         file.createNewFile();
         file = new File(Routes.FILE.getFolderPhotos());
-        for(File f : file.listFiles())
+        for (File f : file.listFiles()) {
             f.delete();
+        }
     }
-    
+
     @Override
     public void update(Person p) throws IOException {
         delete(p);
