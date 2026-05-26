@@ -11,7 +11,7 @@ package view;
 public class Count extends javax.swing.JFrame {
 
     /**
-     * Creates new customizer COUNT: comment Sebastian
+     * Creates new customizer COUNT: comment Joao
      * 
      */
     public Count(int total) {
