@@ -241,16 +241,53 @@ public class ControllerImplementation implements IController, ActionListener {
     }
 
     private void handleInsertPerson() {
-        Person p = new Person(insert.getNam().getText(), insert.getNif().getText());
+    // 1. Definimos la expresión regular (escapada correctamente para Java)
+    String phoneRegex = "^\\+?[0-9]{1,4}?[-.\\s]?(\\?\\d{1,3})?[-.\\s]?\\d{1,4}[-.\\s]?\\d{1,4}[-.\\s]?\\d{1,9}$";
+    
+    // 2. Recuperamos el teléfono de la vista
+    String phoneInput = insert.getPhNumber().getText().trim();
+
+    try {
+        // 3. Validamos el teléfono ANTES de crear el objeto o guardarlo
+        if (phoneInput.isEmpty() || !phoneInput.matches(phoneRegex)) {
+            throw new PersonException("Invalid phone number format.");
+        }
+
+        // 4. Si la validación pasa, creamos el objeto Person usando el constructor actualizado
+        Person p = new Person(insert.getNam().getText(), insert.getNif().getText(), phoneInput);
+        
+        // Mantenemos tu lógica existente para la fecha y la foto
         if (insert.getDateOfBirth().getModel().getValue() != null) {
             p.setDateOfBirth(((GregorianCalendar) insert.getDateOfBirth().getModel().getValue()).getTime());
         }
         if (insert.getPhoto().getIcon() != null) {
             p.setPhoto((ImageIcon) insert.getPhoto().getIcon());
         }
+        
+        // 5. Intentamos persistir los datos a través de tu método insert(p)
         insert(p);
+        
+        // Si todo ha ido bien, reseteamos el formulario
         insert.getReset().doClick();
+        
+        // Mostrar un mensaje de éxito al usuario
+        javax.swing.JOptionPane.showMessageDialog(insert, "Person saved successfully!", "Success", javax.swing.JOptionPane.INFORMATION_MESSAGE);
+
+    } catch (PersonException ex) {
+        // 6. ERROR HANDLING: Combinamos el mensaje del formato erróneo con la petición de acción
+        String errorMessage = ex.getMessage() + "\nPlease enter a valid phone number.";
+        
+        javax.swing.JOptionPane.showMessageDialog(
+            insert, 
+            errorMessage, 
+            "Validation Error", 
+            javax.swing.JOptionPane.ERROR_MESSAGE
+        );
+        
+        // Al caer en el catch, ni se guarda la persona ni se ejecuta el doClick() del reset, 
+        // manteniendo los datos intactos en el formulario para que el usuario los corrija.
     }
+}
 
     private void handleReadAction() {
         read = new Read(menu, true);
@@ -347,17 +384,49 @@ public class ControllerImplementation implements IController, ActionListener {
         }
     }
 
-    public void handleUpdatePerson() {
-        if (update != null) {
-            Person p = new Person(update.getNam().getText(), update.getNif().getText());
-            if ((update.getDateOfBirth().getModel().getValue()) != null) {
+    private void handleUpdatePerson() {
+        // 1. Expresión regular para el formato internacional
+        String phoneRegex = "^\\+?[0-9]{1,4}?[-.\\s]?(\\?\\d{1,3})?[-.\\s]?\\d{1,4}[-.\\s]?\\d{1,4}[-.\\s]?\\d{1,9}$";
+
+        // 2. Recuperamos el teléfono de la vista de edición
+        String phoneInput = update.getPhNumber().getText().trim();
+
+        try {
+            // 3. Validamos el número de teléfono ANTES de actualizar
+            if (phoneInput.isEmpty() || !phoneInput.matches(phoneRegex)) {
+                // Si es inválido, lanzamos tu excepción con el mensaje de formato
+                throw new PersonException("Invalid phone number format.");
+            }
+
+            // 4. Si pasa la validación, creamos el objeto Person con el nuevo campo del teléfono
+            Person p = new Person(update.getNam().getText(), update.getNif().getText(), phoneInput);
+
+            if (update.getDateOfBirth().getModel().getValue() != null) {
                 p.setDateOfBirth(((GregorianCalendar) update.getDateOfBirth().getModel().getValue()).getTime());
             }
-            if ((ImageIcon) (update.getPhoto().getIcon()) != null) {
+            if (update.getPhoto().getIcon() != null) {
                 p.setPhoto((ImageIcon) update.getPhoto().getIcon());
             }
+
+            // 5. Llamamos a tu método de actualización (capa DAO)
             update(p);
-            update.getReset().doClick();
+
+            // Informamos del éxito
+            javax.swing.JOptionPane.showMessageDialog(update, "Person updated successfully!", "Success", javax.swing.JOptionPane.INFORMATION_MESSAGE);
+
+        } catch (PersonException ex) {
+            // 6. ERROR HANDLING: Unificamos los requisitos de error solicitados.
+            // Combinamos el mensaje de formato inválido con la petición de acción al usuario.
+            String errorMessage = ex.getMessage() + "\nPlease enter a valid phone number.";
+
+            javax.swing.JOptionPane.showMessageDialog(
+                    update,
+                    errorMessage,
+                    "Validation Error",
+                    javax.swing.JOptionPane.ERROR_MESSAGE
+            );
+
+            // El flujo se detiene por completo aquí. No se ejecuta el método update(p) de arriba.
         }
     }
 
