@@ -17,6 +17,7 @@ import view.Menu;
 import view.Read;
 import view.ReadAll;
 import view.Update;
+import view.Count;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -37,6 +38,7 @@ import javax.swing.JButton;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 import org.jdatepicker.DateModel;
+import utils.Constants;
 
 /**
  * This class starts the visual part of the application and programs and manages
@@ -112,31 +114,43 @@ public class ControllerImplementation implements IController, ActionListener {
             handleReadAll();
         } else if (e.getSource() == menu.getDeleteAll()) {
             handleDeleteAll();
+        } else if (e.getSource() == menu.getCount()) {
+            handleCountAction();
+        }
+    }
+
+    private void handleCountAction() {
+        try {
+            // Pide al DAO que cuente cuántas personas hay guardadas
+            int total = dao.count();
+
+            // Crea la ventana Count y le pasa el total
+            Count countView = new Count(total);
+
+            // Muestra la ventana
+            countView.setVisible(true);
+
+        } catch (Exception ex) {
+            // Muestra un mensaje de error si algo falla
+            JOptionPane.showMessageDialog(null, ex.getMessage());
         }
     }
 
     private void handleDataStorageSelection() {
         String daoSelected = ((javax.swing.JCheckBox) (dSS.getAccept()[1])).getText();
         dSS.dispose();
-        switch (daoSelected) {
-            case "ArrayList":
-                dao = new DAOArrayList();
-                break;
-            case "HashMap":
-                dao = new DAOHashMap();
-                break;
-            case "File":
-                setupFileStorage();
-                break;
-            case "File (Serialization)":
-                setupFileSerialization();
-                break;
-            case "SQL - Database":
-                setupSQLDatabase();
-                break;
-            case "JPA - Database":
-                setupJPADatabase();
-                break;
+        if (Constants.ARRAY_LIST.equals(daoSelected)) {
+            dao = new DAOArrayList();
+        } else if (Constants.HASH_MAP.equals(daoSelected)) {
+            dao = new DAOHashMap();
+        } else if (Constants.FILE.equals(daoSelected)) {
+            setupFileStorage();
+        } else if (Constants.FILE_SERIALIZABLE.equals(daoSelected)) {
+            setupFileSerialization();
+        } else if (Constants.SQL.equals(daoSelected)) {
+            setupSQLDatabase();
+        } else if (Constants.JPA.equals(daoSelected)) {
+            setupJPADatabase();
         }
         setupLogin();
     }
@@ -217,6 +231,7 @@ public class ControllerImplementation implements IController, ActionListener {
         menu.getDelete().addActionListener(this);
         menu.getReadAll().addActionListener(this);
         menu.getDeleteAll().addActionListener(this);
+        menu.getCount().addActionListener(this);
     }
 
     private void handleInsertAction() {
@@ -273,9 +288,27 @@ public class ControllerImplementation implements IController, ActionListener {
 
     public void handleDeletePerson() {
         if (delete != null) {
-            Person p = new Person(delete.getNif().getText());
-            delete(p);
-            delete.getReset().doClick();
+            // 1. Definir los botones en inglés
+            Object[] options = {"Yes", "No"};
+
+            // 2. Lanzar el cuadro de confirmación
+            int answer = JOptionPane.showOptionDialog(
+                    delete,
+                    "Are you sure you want to delete this person?",
+                    delete.getTitle(),
+                    JOptionPane.YES_NO_OPTION,
+                    JOptionPane.WARNING_MESSAGE,
+                    null,
+                    options,
+                    options[1] // Selección por defecto en "No"
+            );
+
+            // 3. Si pulsa "Yes" (posición 0), se ejecuta el borrado
+            if (answer == 0) {
+                Person p = new Person(delete.getNif().getText());
+                delete(p);
+                delete.getReset().doClick();
+            }
         }
     }
 
@@ -385,6 +418,12 @@ public class ControllerImplementation implements IController, ActionListener {
         try {
             if (dao.read(p) == null) {
                 dao.insert(p);
+                JOptionPane.showMessageDialog(
+                        insert,
+                        "Person inserted successfully!",
+                        insert.getTitle(),
+                        JOptionPane.INFORMATION_MESSAGE
+                );
             } else {
                 throw new PersonException(p.getNif() + " is registered and can not "
                         + "be INSERTED.");
@@ -415,6 +454,12 @@ public class ControllerImplementation implements IController, ActionListener {
     public void update(Person p) {
         try {
             dao.update(p);
+            JOptionPane.showMessageDialog(
+                    insert,
+                    "Person updated successfully!",
+                    insert.getTitle(),
+                    JOptionPane.INFORMATION_MESSAGE
+            );
         } catch (Exception ex) {
             //Exceptions generated by file read/write access. If something goes 
             // wrong the application closes.
@@ -439,6 +484,15 @@ public class ControllerImplementation implements IController, ActionListener {
         try {
             if (dao.read(p) != null) {
                 dao.delete(p);
+
+                // CRITERIO AÑADIDO: Mensaje de éxito tras confirmarse el borrado
+                JOptionPane.showMessageDialog(
+                        delete,
+                        "Person deleted successfully!",
+                        "Delete - People v1.1.0",
+                        JOptionPane.INFORMATION_MESSAGE
+                );
+
             } else {
                 throw new PersonException(p.getNif() + " is not registered and can not "
                         + "be DELETED");
@@ -517,6 +571,12 @@ public class ControllerImplementation implements IController, ActionListener {
     public void deleteAll() {
         try {
             dao.deleteAll();
+            JOptionPane.showMessageDialog(
+                    insert,
+                    "All persons have been deleted successfully!",
+                    insert.getTitle(),
+                    JOptionPane.INFORMATION_MESSAGE
+            );
         } catch (Exception ex) {
             if (ex instanceof FileNotFoundException || ex instanceof IOException
                     || ex instanceof ParseException || ex instanceof ClassNotFoundException

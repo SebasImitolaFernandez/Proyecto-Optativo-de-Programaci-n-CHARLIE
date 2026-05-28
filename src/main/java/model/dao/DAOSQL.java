@@ -49,6 +49,13 @@ public class DAOSQL implements IDAO {
     }
 
     @Override
+    public int count() throws Exception {
+        // Usa el método readAll() para obtener todas las personas
+        // y devuelve el tamaño de la lista
+        return readAll().size();
+    }
+
+    @Override
     public Person read(Person p) throws SQLException {
         Person pReturn = null;
         Connection conn;
@@ -78,7 +85,7 @@ public class DAOSQL implements IDAO {
     }
 
     @Override
-    public ArrayList<Person> readAll() throws SQLException{
+    public ArrayList<Person> readAll() throws SQLException {
         ArrayList<Person> people = new ArrayList<>();
         Connection conn;
         Statement instruction;
@@ -213,8 +220,9 @@ public class DAOSQL implements IDAO {
         instruction.close();
         disconnect(conn);
         File file = new File(Routes.DB.getFolderPhotos() + File.separator);
-        for(File f : file.listFiles())
+        for (File f : file.listFiles()) {
             f.delete();
+        }
     }
 
 }
