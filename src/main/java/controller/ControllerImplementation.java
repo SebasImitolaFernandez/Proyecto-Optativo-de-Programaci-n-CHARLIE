@@ -152,8 +152,7 @@ public class ControllerImplementation implements IController, ActionListener {
         } else if (Constants.JPA.equals(daoSelected)) {
             setupJPADatabase();
         }
-
-        setupMenu();
+        setupLogin();
     }
 
     private void setupFileStorage() {
@@ -588,4 +587,26 @@ public class ControllerImplementation implements IController, ActionListener {
         }
     }
 
+    private void setupLogin() {
+        view.LoginFrame login = new view.LoginFrame();
+        login.setLocationRelativeTo(null);
+        login.setVisible(true);
+
+        login.getBtnLogin().addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String username = login.getjTxtUsername().getText().trim();
+                String password = new String(login.getjTxtPassword().getPassword());
+                if (username.equals("admin") && password.equals("12345678")) {
+                    JOptionPane.showMessageDialog(login, "Login Successful!", "Success", JOptionPane.INFORMATION_MESSAGE);
+                    login.dispose(); 
+                    setupMenu();
+                } else {
+                    JOptionPane.showMessageDialog(login, "Invalid username or password.", "Login Failed", JOptionPane.ERROR_MESSAGE);
+                    login.getjTxtPassword().setText("");
+                    login.getjTxtPassword().requestFocus();
+                }
+            }
+        });
+    }
 }
