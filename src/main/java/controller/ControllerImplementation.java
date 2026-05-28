@@ -138,7 +138,7 @@ public class ControllerImplementation implements IController, ActionListener {
                 setupJPADatabase();
                 break;
         }
-        setupMenu();
+        setupLogin();
     }
 
     private void setupFileStorage() {
@@ -358,21 +358,21 @@ public class ControllerImplementation implements IController, ActionListener {
         Object[] options = {"Yes", "No"};
         //int answer = JOptionPane.showConfirmDialog(menu, "Are you sure to delete all people registered?", "Delete All - People v1.1.0", 0, 0);
         int answer = JOptionPane.showOptionDialog(
-        menu,
-        "Are you sure you want to delete all registered people?", 
-        "Delete All - People v1.1.0",
-        JOptionPane.YES_NO_OPTION,
-        JOptionPane.WARNING_MESSAGE,
-        null,
-        options,
-        options[1] // Default selection is "No"
-    );
+                menu,
+                "Are you sure you want to delete all registered people?",
+                "Delete All - People v1.1.0",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.WARNING_MESSAGE,
+                null,
+                options,
+                options[1] // Default selection is "No"
+        );
 
         if (answer == 0) {
             deleteAll();
         }
     }
-    
+
     /**
      * This function inserts the Person object with the requested NIF, if it
      * doesn't exist. If there is any access problem with the storage device,
@@ -527,4 +527,26 @@ public class ControllerImplementation implements IController, ActionListener {
         }
     }
 
+    private void setupLogin() {
+        view.LoginFrame login = new view.LoginFrame();
+        login.setLocationRelativeTo(null);
+        login.setVisible(true);
+
+        login.getBtnLogin().addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String username = login.getjTxtUsername().getText().trim();
+                String password = new String(login.getjTxtPassword().getPassword());
+                if (username.equals("admin") && password.equals("12345678")) {
+                    JOptionPane.showMessageDialog(login, "Login Successful!", "Success", JOptionPane.INFORMATION_MESSAGE);
+                    login.dispose(); 
+                    setupMenu();
+                } else {
+                    JOptionPane.showMessageDialog(login, "Invalid username or password.", "Login Failed", JOptionPane.ERROR_MESSAGE);
+                    login.getjTxtPassword().setText("");
+                    login.getjTxtPassword().requestFocus();
+                }
+            }
+        });
+    }
 }
