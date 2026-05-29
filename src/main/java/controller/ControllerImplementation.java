@@ -39,6 +39,7 @@ import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 import org.jdatepicker.DateModel;
 import utils.Constants;
+import utils.DataValidation;
 
 /**
  * This class starts the visual part of the application and programs and manages
@@ -136,9 +137,48 @@ public class ControllerImplementation implements IController, ActionListener {
         }
     }
 
+    private void setupFileStorage() {
+        File folderPath = new File(Routes.FILE.getFolderPath());
+        File folderPhotos = new File(Routes.FILE.getFolderPhotos());
+        File dataFile = new File(Routes.FILE.getDataFile());
+
+        folderPath.mkdir();
+        folderPhotos.mkdir();
+
+        if (!dataFile.exists()) {
+            try {
+                dataFile.createNewFile();
+            } catch (IOException ex) {
+                JOptionPane.showMessageDialog(dSS, "File structure not created. Closing application.", "File - People v1.1.0", JOptionPane.ERROR_MESSAGE);
+                System.exit(0);
+            }
+        }
+
+        dao = new DAOFile();
+    }
+
+    private void setupFileSerialization() {
+        File folderPath = new File(Routes.FILES.getFolderPath());
+        File dataFile = new File(Routes.FILES.getDataFile());
+
+        folderPath.mkdir();
+
+        if (!dataFile.exists()) {
+            try {
+                dataFile.createNewFile();
+            } catch (IOException ex) {
+                JOptionPane.showMessageDialog(dSS, "File structure not created. Closing application.", "FileSer - People v1.1.0", JOptionPane.ERROR_MESSAGE);
+                System.exit(0);
+            }
+        }
+
+        dao = new DAOFileSerializable();
+    }
+
     private void handleDataStorageSelection() {
         String daoSelected = ((javax.swing.JCheckBox) (dSS.getAccept()[1])).getText();
         dSS.dispose();
+
         if (Constants.ARRAY_LIST.equals(daoSelected)) {
             dao = new DAOArrayList();
         } else if (Constants.HASH_MAP.equals(daoSelected)) {
@@ -156,57 +196,37 @@ public class ControllerImplementation implements IController, ActionListener {
         setupMenu();
     }
 
-    private void setupFileStorage() {
-        File folderPath = new File(Routes.FILE.getFolderPath());
-        File folderPhotos = new File(Routes.FILE.getFolderPhotos());
-        File dataFile = new File(Routes.FILE.getDataFile());
-        folderPath.mkdir();
-        folderPhotos.mkdir();
-        if (!dataFile.exists()) {
-            try {
-                dataFile.createNewFile();
-            } catch (IOException ex) {
-                JOptionPane.showMessageDialog(dSS, "File structure not created. Closing application.", "File - People v1.1.0", JOptionPane.ERROR_MESSAGE);
-                System.exit(0);
-            }
-        }
-        dao = new DAOFile();
-    }
-
-    private void setupFileSerialization() {
-        File folderPath = new File(Routes.FILES.getFolderPath());
-        File dataFile = new File(Routes.FILES.getDataFile());
-        folderPath.mkdir();
-        if (!dataFile.exists()) {
-            try {
-                dataFile.createNewFile();
-            } catch (IOException ex) {
-                JOptionPane.showMessageDialog(dSS, "File structure not created. Closing application.", "FileSer - People v1.1.0", JOptionPane.ERROR_MESSAGE);
-                System.exit(0);
-            }
-        }
-        dao = new DAOFileSerializable();
-    }
-
     private void setupSQLDatabase() {
         try {
-            Connection conn = DriverManager.getConnection(Routes.DB.getDbServerAddress() + Routes.DB.getDbServerComOpt(),
-                    Routes.DB.getDbServerUser(), Routes.DB.getDbServerPassword());
+            Connection conn = DriverManager.getConnection(
+                    Routes.DB.getDbServerAddress() + Routes.DB.getDbServerComOpt(),
+                    Routes.DB.getDbServerUser(),
+                    Routes.DB.getDbServerPassword()
+            );
+
             if (conn != null) {
                 Statement stmt = conn.createStatement();
+
                 stmt.executeUpdate("create database if not exists " + Routes.DB.getDbServerDB() + ";");
-                stmt.executeUpdate("create table if not exists " + Routes.DB.getDbServerDB() + "." + Routes.DB.getDbServerTABLE() + "("
+
+                stmt.executeUpdate(
+                        "create table if not exists " + Routes.DB.getDbServerDB() + "." + Routes.DB.getDbServerTABLE() + "("
                         + "nif varchar(9) primary key not null, "
                         + "name varchar(50), "
+                        + "email varchar(100), "
                         + "dateOfBirth DATE, "
-                        + "photo varchar(200) );");
+                        + "photo varchar(200) );"
+                );
+
                 stmt.close();
                 conn.close();
             }
+
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(dSS, "SQL-DDBB structure not created. Closing application.", "SQL_DDBB - People v1.1.0", JOptionPane.ERROR_MESSAGE);
             System.exit(0);
         }
+
         dao = new DAOSQL();
     }
 
@@ -243,12 +263,24 @@ public class ControllerImplementation implements IController, ActionListener {
 
     private void handleInsertPerson() {
         Person p = new Person(insert.getNam().getText(), insert.getNif().getText());
+
+        String email = insert.getEmail().getText();
+
+        if (!DataValidation.isValidEmail(email)) {
+            JOptionPane.showMessageDialog(insert, "Invalid email format.", insert.getTitle(), JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        p.setEmail(email);
+
         if (insert.getDateOfBirth().getModel().getValue() != null) {
             p.setDateOfBirth(((GregorianCalendar) insert.getDateOfBirth().getModel().getValue()).getTime());
         }
+
         if (insert.getPhoto().getIcon() != null) {
             p.setPhoto((ImageIcon) insert.getPhoto().getIcon());
         }
+
         insert(p);
         insert.getReset().doClick();
     }
@@ -262,19 +294,26 @@ public class ControllerImplementation implements IController, ActionListener {
     private void handleReadPerson() {
         Person p = new Person(read.getNif().getText());
         Person pNew = read(p);
+
         if (pNew != null) {
             read.getNam().setText(pNew.getName());
+
+            // Muestra el email de la persona leída
+            read.getEmail().setText(pNew.getEmail());
+
             if (pNew.getDateOfBirth() != null) {
                 Calendar calendar = Calendar.getInstance();
                 calendar.setTime(pNew.getDateOfBirth());
                 DateModel<Calendar> dateModel = (DateModel<Calendar>) read.getDateOfBirth().getModel();
                 dateModel.setValue(calendar);
             }
-            //To avoid charging former images
+
+            // To avoid charging former images
             if (pNew.getPhoto() != null) {
                 pNew.getPhoto().getImage().flush();
                 read.getPhoto().setIcon(pNew.getPhoto());
             }
+
         } else {
             JOptionPane.showMessageDialog(read, p.getNif() + " doesn't exist.", read.getTitle(), JOptionPane.WARNING_MESSAGE);
             read.getReset().doClick();
@@ -326,10 +365,12 @@ public class ControllerImplementation implements IController, ActionListener {
             Person pNew = read(p);
             if (pNew != null) {
                 update.getNam().setEnabled(true);
+                update.getEmail().setEnabled(true);
                 update.getDateOfBirth().setEnabled(true);
                 update.getPhoto().setEnabled(true);
                 update.getUpdate().setEnabled(true);
                 update.getNam().setText(pNew.getName());
+                update.getEmail().setText(pNew.getEmail());
                 if (pNew.getDateOfBirth() != null) {
                     Calendar calendar = Calendar.getInstance();
                     calendar.setTime(pNew.getDateOfBirth());
@@ -351,12 +392,24 @@ public class ControllerImplementation implements IController, ActionListener {
     public void handleUpdatePerson() {
         if (update != null) {
             Person p = new Person(update.getNam().getText(), update.getNif().getText());
+
+            String email = update.getEmail().getText();
+
+            if (!DataValidation.isValidEmail(email)) {
+                JOptionPane.showMessageDialog(update, "Invalid email format.", update.getTitle(), JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            p.setEmail(email);
+
             if ((update.getDateOfBirth().getModel().getValue()) != null) {
                 p.setDateOfBirth(((GregorianCalendar) update.getDateOfBirth().getModel().getValue()).getTime());
             }
+
             if ((ImageIcon) (update.getPhoto().getIcon()) != null) {
                 p.setPhoto((ImageIcon) update.getPhoto().getIcon());
             }
+
             update(p);
             update.getReset().doClick();
         }
@@ -364,26 +417,23 @@ public class ControllerImplementation implements IController, ActionListener {
 
     public void handleReadAll() {
         ArrayList<Person> s = readAll();
+
         if (s.isEmpty()) {
             JOptionPane.showMessageDialog(menu, "There are not people registered yet.", "Read All - People v1.1.0", JOptionPane.WARNING_MESSAGE);
         } else {
             readAll = new ReadAll(menu, true);
             DefaultTableModel model = (DefaultTableModel) readAll.getTable().getModel();
-            for (int i = 0; i < s.size(); i++) {
-                model.addRow(new Object[i]);
-                model.setValueAt(s.get(i).getNif(), i, 0);
-                model.setValueAt(s.get(i).getName(), i, 1);
-                if (s.get(i).getDateOfBirth() != null) {
-                    model.setValueAt(s.get(i).getDateOfBirth().toString(), i, 2);
-                } else {
-                    model.setValueAt("", i, 2);
-                }
-                if (s.get(i).getPhoto() != null) {
-                    model.setValueAt("yes", i, 3);
-                } else {
-                    model.setValueAt("no", i, 3);
-                }
+
+            for (Person person : s) {
+                model.addRow(new Object[]{
+                    person.getNif(),
+                    person.getName(),
+                    person.getDateOfBirth() != null ? person.getDateOfBirth().toString() : "",
+                    person.getPhoto() != null ? "yes" : "no",
+                    person.getEmail()
+                });
             }
+
             readAll.setVisible(true);
         }
     }

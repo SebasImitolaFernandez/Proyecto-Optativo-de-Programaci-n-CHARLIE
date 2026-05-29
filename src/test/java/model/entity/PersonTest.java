@@ -13,13 +13,14 @@ class PersonTest {
     private Person personWithFullData;
     private String nif = "12345678X";
     private String name = "John Doe";
+    private String email = "john@email.com";
     private Date dateOfBirth = new Date();
     private ImageIcon photo = new ImageIcon();
 
     @BeforeEach
     void setUp() {
         person = new Person(nif);
-        personWithFullData = new Person(name, nif, dateOfBirth, photo);
+        personWithFullData = new Person(name, nif, email, dateOfBirth, photo);
     }
 
     @Test
@@ -28,6 +29,15 @@ class PersonTest {
         assertNull(person.getName());
         assertNull(person.getDateOfBirth());
         assertNull(person.getPhoto());
+    }
+
+    /*======================================
+        Test para el Email
+    ======================================*/
+    @Test
+    void testEmailGetterAndSetter() {
+        person.setEmail(email);
+        assertEquals(email, person.getEmail());
     }
 
     @Test
@@ -43,6 +53,7 @@ class PersonTest {
         assertEquals(nif, personWithFullData.getNif());
         assertEquals(dateOfBirth, personWithFullData.getDateOfBirth());
         assertEquals(photo, personWithFullData.getPhoto());
+        assertEquals(email, personWithFullData.getEmail());
     }
 
     @Test
@@ -94,8 +105,8 @@ class PersonTest {
 
     @Test
     void testToString() {
-        String expected = "Person {Name = " + name + ", NIF = " + nif
-                + ", DateOfBirth = " + dateOfBirth + ", Photo = true}";
+        String expected = "Person {Name = " + name + ", NIF = " + nif +
+                ", Emial = " + email + ", DateOfBirth = " + dateOfBirth + ", Photo = true}";
         assertEquals(expected, personWithFullData.toString());
     }
 }

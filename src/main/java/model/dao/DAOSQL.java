@@ -33,8 +33,8 @@ public class DAOSQL implements IDAO {
 
     private final String SQL_SELECT_ALL = "SELECT * FROM " + Routes.DB.getDbServerDB() + "." + Routes.DB.getDbServerTABLE() + ";";
     private final String SQL_SELECT = "SELECT * FROM " + Routes.DB.getDbServerDB() + "." + Routes.DB.getDbServerTABLE() + " WHERE (nif = ?);";
-    private final String SQL_INSERT = "INSERT INTO " + Routes.DB.getDbServerDB() + "." + Routes.DB.getDbServerTABLE() + " (nif, name, dateOfBirth, photo) VALUES (?, ?, ?, ?);";
-    private final String SQL_UPDATE = "UPDATE " + Routes.DB.getDbServerDB() + "." + Routes.DB.getDbServerTABLE() + " SET name = ?, dateOfBirth = ?, photo = ? WHERE (nif = ?);";
+    private final String SQL_INSERT = "INSERT INTO " + Routes.DB.getDbServerDB() + "." + Routes.DB.getDbServerTABLE() + " (nif, name, email, dateOfBirth, photo) VALUES (?, ?, ?, ?, ?);";
+    private final String SQL_UPDATE = "UPDATE " + Routes.DB.getDbServerDB() + "." + Routes.DB.getDbServerTABLE() + " SET name = ?, email = ?, dateOfBirth = ?, photo = ? WHERE (nif = ?);";
     private final String SQL_DELETE = "DELETE FROM " + Routes.DB.getDbServerDB() + "." + Routes.DB.getDbServerTABLE() + " WHERE (nif = ";
     private final String SQL_DELETE_ALL = "TRUNCATE " + Routes.DB.getDbServerDB() + "." + Routes.DB.getDbServerTABLE();
 
@@ -68,7 +68,10 @@ public class DAOSQL implements IDAO {
         while (rs.next()) {
             String nif = rs.getString("nif");
             String name = rs.getString("name");
+            String email = rs.getString("email");
+
             pReturn = new Person(name, nif);
+            pReturn.setEmail(email);
             Date date = rs.getDate("dateOfBirth");
             if (date != null) {
                 pReturn.setDateOfBirth(date);
@@ -96,13 +99,19 @@ public class DAOSQL implements IDAO {
         while (rs.next()) {
             String nif = rs.getString("nif");
             String name = rs.getString("name");
+            String email = rs.getString("email");
             Date date = rs.getDate("dateOfBirth");
             String photo = rs.getString("photo");
+
+            Person person = new Person(name, nif);
+            person.setEmail(email);
+            person.setDateOfBirth(date);
+
             if (photo != null) {
-                people.add(new Person(nif, name, date, new ImageIcon(photo)));
-            } else {
-                people.add(new Person(nif, name, date, null));
+                person.setPhoto(new ImageIcon(photo));
             }
+
+            people.add(person);
         }
         rs.close();
         instruction.close();
@@ -131,13 +140,19 @@ public class DAOSQL implements IDAO {
         PreparedStatement instruction;
         conn = connect();
         instruction = conn.prepareStatement(SQL_INSERT);
+
         instruction.setString(1, p.getNif());
         instruction.setString(2, p.getName());
+
+        // Guarda el email de la persona
+        instruction.setString(3, p.getEmail());
+
         if (p.getDateOfBirth() != null) {
-            instruction.setDate(3, new java.sql.Date((p.getDateOfBirth()).getTime()));
+            instruction.setDate(4, new java.sql.Date((p.getDateOfBirth()).getTime()));
         } else {
-            instruction.setDate(3, null);
+            instruction.setDate(4, null);
         }
+
         if (p.getPhoto() != null) {
             String sep = File.separator;
             String filePath = Routes.DB.getFolderPhotos() + sep + p.getNif() + ".png";
@@ -146,21 +161,32 @@ public class DAOSQL implements IDAO {
             BufferedOutputStream outB;
             out = new FileOutputStream(photo);
             outB = new BufferedOutputStream(out);
-            BufferedImage bi = new BufferedImage(p.getPhoto().getImage().getWidth(null),
+
+            BufferedImage bi = new BufferedImage(
+                    p.getPhoto().getImage().getWidth(null),
                     p.getPhoto().getImage().getHeight(null),
-                    BufferedImage.TYPE_INT_ARGB);
+                    BufferedImage.TYPE_INT_ARGB
+            );
+
             bi.getGraphics().drawImage(p.getPhoto().getImage(), 0, 0, null);
+
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             ImageIO.write(bi, "png", baos);
+
             byte[] img = baos.toByteArray();
+
             for (int i = 0; i < img.length; i++) {
                 outB.write(img[i]);
             }
+
             outB.close();
-            instruction.setString(4, photo.getPath());
+
+            instruction.setString(5, photo.getPath());
+
         } else {
-            instruction.setString(4, null);
+            instruction.setString(5, null);
         }
+
         instruction.executeUpdate();
         instruction.close();
         disconnect(conn);
@@ -172,12 +198,18 @@ public class DAOSQL implements IDAO {
         PreparedStatement instruction;
         conn = connect();
         instruction = conn.prepareStatement(SQL_UPDATE);
+
         instruction.setString(1, p.getName());
+
+        // Actualiza el email de la persona
+        instruction.setString(2, p.getEmail());
+
         if (p.getDateOfBirth() != null) {
-            instruction.setDate(2, new java.sql.Date((p.getDateOfBirth()).getTime()));
+            instruction.setDate(3, new java.sql.Date((p.getDateOfBirth()).getTime()));
         } else {
-            instruction.setDate(2, null);
+            instruction.setDate(3, null);
         }
+
         if (p.getPhoto() != null) {
             String sep = File.separator;
             File imagePerson = new File(Routes.DB.getFolderPhotos() + sep + p.getNif() + ".png");
@@ -185,25 +217,38 @@ public class DAOSQL implements IDAO {
             BufferedOutputStream outB;
             out = new FileOutputStream(imagePerson);
             outB = new BufferedOutputStream(out);
-            BufferedImage bi = new BufferedImage(p.getPhoto().getImage().getWidth(null),
+
+            BufferedImage bi = new BufferedImage(
+                    p.getPhoto().getImage().getWidth(null),
                     p.getPhoto().getImage().getHeight(null),
-                    BufferedImage.TYPE_INT_ARGB);
+                    BufferedImage.TYPE_INT_ARGB
+            );
+
             bi.getGraphics().drawImage(p.getPhoto().getImage(), 0, 0, null);
+
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             ImageIO.write(bi, "png", baos);
+
             byte[] img = baos.toByteArray();
+
             for (int i = 0; i < img.length; i++) {
                 outB.write(img[i]);
             }
+
             outB.close();
-            instruction.setString(3, imagePerson.getPath());
+
+            instruction.setString(4, imagePerson.getPath());
+
         } else {
-            instruction.setString(3, null);
+            instruction.setString(4, null);
+
             File photoFile = new File(Routes.DB.getFolderPhotos() + File.separator + p.getNif()
                     + ".png");
             photoFile.delete();
         }
-        instruction.setString(4, p.getNif());
+
+        instruction.setString(5, p.getNif());
+
         instruction.executeUpdate();
         instruction.close();
         disconnect(conn);
