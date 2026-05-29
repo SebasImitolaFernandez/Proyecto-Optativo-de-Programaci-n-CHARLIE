@@ -222,9 +222,23 @@ public class ControllerImplementation implements IController, ActionListener {
         dao = new DAOJPA();
     }
 
-    private void setupMenu() {
+    private void setupMenu(String role) {
         menu = new Menu();
         menu.setVisible(true);
+
+        // CONTROL DE ACCESO BASADO EN ROLES
+        // Si el usuario es un empleado, desactivamos las opciones de modificación
+        if ("EMPLOYEE".equals(role)) {
+            menu.getInsert().setEnabled(false);
+            menu.getUpdate().setEnabled(false);
+            menu.getDelete().setEnabled(false);
+            menu.getDeleteAll().setEnabled(false);
+
+            // Opcional: Modifica el título de la ventana para avisar del modo lectura
+            menu.setTitle(menu.getTitle() + " - (Employee Mode)");
+        }
+
+        // Vinculación de los ActionListeners (Se mantienen activos para el controlador)
         menu.getInsert().addActionListener(this);
         menu.getRead().addActionListener(this);
         menu.getUpdate().addActionListener(this);
@@ -665,11 +679,27 @@ public class ControllerImplementation implements IController, ActionListener {
             @Override
             public void actionPerformed(ActionEvent e) {
                 String username = login.getjTxtUsername().getText().trim();
-                String password = new String(login.getjTxtPassword().getPassword());
+                // Corregido: Usamos getText() porque es un JTextField común
+                String password = login.getjTxtPassword().getText();
+
+                boolean loginValidado = false;
+
+                // Verificación de credenciales y asignación de Roles
                 if (username.equals("admin") && password.equals("12345678")) {
-                    JOptionPane.showMessageDialog(login, "Login Successful!", "Success", JOptionPane.INFORMATION_MESSAGE);
-                    login.dispose(); 
-                    setupMenu();
+                    login.setUserRol("ADMIN");
+                    loginValidado = true;
+                } else if (username.equals("empleado") && password.equals("87654321")) {
+                    login.setUserRol("EMPLOYEE");
+                    loginValidado = true;
+                }
+
+                if (loginValidado) {
+                    JOptionPane.showMessageDialog(login, "Login Successful as " + login.getUserRole() + "!", "Login Success", JOptionPane.INFORMATION_MESSAGE);
+                    String rolAsignado = login.getUserRole();
+                    login.dispose();
+
+                    // Llamamos al método setupMenu pasándole el rol correspondiente
+                    setupMenu(rolAsignado);
                 } else {
                     JOptionPane.showMessageDialog(login, "Invalid username or password.", "Login Failed", JOptionPane.ERROR_MESSAGE);
                     login.getjTxtPassword().setText("");
