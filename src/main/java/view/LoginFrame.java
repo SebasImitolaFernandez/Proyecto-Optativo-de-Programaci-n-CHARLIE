@@ -158,6 +158,14 @@ public class LoginFrame extends javax.swing.JFrame {
     public javax.swing.JPasswordField getjTxtPassword() {
         return jTxtPassword; 
     }
+    
+    private String userRol = "";
+    public String getUserRole(){
+        return userRol;
+    }
+    public void setUserRol(String role){
+        this.userRol = role;
+    }
     /**
      * @param args the command line arguments
      */
