@@ -88,6 +88,7 @@ public class Person implements Serializable{
     public String getNif() {
         return nif;
     }
+    
 
     public void setNif(String nif) {
         this.nif = nif;
