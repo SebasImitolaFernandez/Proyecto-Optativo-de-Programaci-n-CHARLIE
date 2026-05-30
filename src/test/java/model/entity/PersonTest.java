@@ -42,7 +42,7 @@ class PersonTest {
 
     @Test
     void testConstructorNameAndNif() {
-        Person personWithNameAndNif = new Person(name, nif);
+        Person personWithNameAndNif = new Person(name, nif, phoneNumber);
         assertEquals(name, personWithNameAndNif.getName());
         assertEquals(nif, personWithNameAndNif.getNif());
     }

@@ -113,17 +113,24 @@ public class DAOJPA implements IDAO {
     public void update(Person p) throws Exception {
         EntityManager em = emf.createEntityManager();
         em.getTransaction().begin();
+
         Person pC = em.find(Person.class, p.getNif());
+
         if (pC != null) {
             pC.setName(p.getName());
+            pC.setEmail(p.getEmail());
+            pC.setPhoneNumber(p.getPhoneNumber());
             pC.setDateOfBirth(p.getDateOfBirth());
+
             if (p.getPhoto() != null) {
                 pC.setPhotoOnlyJPA(imageIconToBytes(p.getPhoto()));
             } else {
                 pC.setPhotoOnlyJPA(null);
             }
+
             em.getTransaction().commit();
         }
+
         em.close();
     }
 
