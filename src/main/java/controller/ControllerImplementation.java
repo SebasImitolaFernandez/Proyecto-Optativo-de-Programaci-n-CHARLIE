@@ -194,9 +194,12 @@ public class ControllerImplementation implements IController, ActionListener {
             if (conn != null) {
                 Statement stmt = conn.createStatement();
                 stmt.executeUpdate("create database if not exists " + Routes.DB.getDbServerDB() + ";");
+                stmt.executeUpdate("drop table if exists " + Routes.DB.getDbServerDB() + "." + Routes.DB.getDbServerTABLE() + ";");
                 stmt.executeUpdate("create table if not exists " + Routes.DB.getDbServerDB() + "." + Routes.DB.getDbServerTABLE() + "("
                         + "nif varchar(9) primary key not null, "
                         + "name varchar(50), "
+                        + "email varchar(100), "
+                        + "phoneNumber varchar(20), "
                         + "dateOfBirth DATE, "
                         + "photo varchar(200) );");
                 stmt.close();
@@ -255,53 +258,43 @@ public class ControllerImplementation implements IController, ActionListener {
     }
 
     private void handleInsertPerson() {
-    // 1. Definimos la expresión regular (escapada correctamente para Java)
-    String phoneRegex = "^\\+?[0-9]{1,4}?[-.\\s]?(\\?\\d{1,3})?[-.\\s]?\\d{1,4}[-.\\s]?\\d{1,4}[-.\\s]?\\d{1,9}$";
-    
-    // 2. Recuperamos el teléfono de la vista
-    String phoneInput = insert.getPhNumber().getText().trim();
+        String emailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$";
+        String phoneRegex = "^\\+?[0-9]{1,4}?[-.\\s]?(\\?\\d{1,3})?[-.\\s]?\\d{1,4}[-.\\s]?\\d{1,4}[-.\\s]?\\d{1,9}$";
 
-    try {
-        // 3. Validamos el teléfono ANTES de crear el objeto o guardarlo
-        if (phoneInput.isEmpty() || !phoneInput.matches(phoneRegex)) {
-            throw new PersonException("Invalid phone number format.");
-        }
+        String emailInput = insert.getEmail().getText().trim();
+        String phoneInput = insert.getPhNumber().getText().trim();
 
-        // 4. Si la validación pasa, creamos el objeto Person usando el constructor actualizado
-        Person p = new Person(insert.getNam().getText(), insert.getNif().getText(), phoneInput);
-        
-        // Mantenemos tu lógica existente para la fecha y la foto
-        if (insert.getDateOfBirth().getModel().getValue() != null) {
-            p.setDateOfBirth(((GregorianCalendar) insert.getDateOfBirth().getModel().getValue()).getTime());
-        }
-        if (insert.getPhoto().getIcon() != null) {
-            p.setPhoto((ImageIcon) insert.getPhoto().getIcon());
-        }
-        
-        // 5. Intentamos persistir los datos a través de tu método insert(p)
-        insert(p);
-        
-        // Si todo ha ido bien, reseteamos el formulario
-        insert.getReset().doClick();
-        
-        // Mostrar un mensaje de éxito al usuario
-        javax.swing.JOptionPane.showMessageDialog(insert, "Person saved successfully!", "Success", javax.swing.JOptionPane.INFORMATION_MESSAGE);
+        try {
+            if (emailInput.isEmpty() || !emailInput.matches(emailRegex)) {
+                throw new PersonException("Invalid email format.");
+            }
 
-    } catch (PersonException ex) {
-        // 6. ERROR HANDLING: Combinamos el mensaje del formato erróneo con la petición de acción
-        String errorMessage = ex.getMessage() + "\nPlease enter a valid phone number.";
-        
-        javax.swing.JOptionPane.showMessageDialog(
-            insert, 
-            errorMessage, 
-            "Validation Error", 
-            javax.swing.JOptionPane.ERROR_MESSAGE
-        );
-        
-        // Al caer en el catch, ni se guarda la persona ni se ejecuta el doClick() del reset, 
-        // manteniendo los datos intactos en el formulario para que el usuario los corrija.
+            if (phoneInput.isEmpty() || !phoneInput.matches(phoneRegex)) {
+                throw new PersonException("Invalid phone number format.");
+            }
+
+            Person p = new Person(insert.getNam().getText(), insert.getNif().getText(), emailInput, phoneInput);
+
+            if (insert.getDateOfBirth().getModel().getValue() != null) {
+                p.setDateOfBirth(((GregorianCalendar) insert.getDateOfBirth().getModel().getValue()).getTime());
+            }
+
+            if (insert.getPhoto().getIcon() != null) {
+                p.setPhoto((ImageIcon) insert.getPhoto().getIcon());
+            }
+
+            insert(p);
+            insert.getReset().doClick();
+
+        } catch (PersonException ex) {
+            JOptionPane.showMessageDialog(
+                    insert,
+                    ex.getMessage(),
+                    "Validation Error",
+                    JOptionPane.ERROR_MESSAGE
+            );
+        }
     }
-}
 
     private void handleReadAction() {
         read = new Read(menu, true);
@@ -312,15 +305,19 @@ public class ControllerImplementation implements IController, ActionListener {
     private void handleReadPerson() {
         Person p = new Person(read.getNif().getText());
         Person pNew = read(p);
+
         if (pNew != null) {
             read.getNam().setText(pNew.getName());
+            read.getEmail().setText(pNew.getEmail());
+            read.getPhNumber().setText(pNew.getPhoneNumber());
+
             if (pNew.getDateOfBirth() != null) {
                 Calendar calendar = Calendar.getInstance();
                 calendar.setTime(pNew.getDateOfBirth());
                 DateModel<Calendar> dateModel = (DateModel<Calendar>) read.getDateOfBirth().getModel();
                 dateModel.setValue(calendar);
             }
-            //To avoid charging former images
+
             if (pNew.getPhoto() != null) {
                 pNew.getPhoto().getImage().flush();
                 read.getPhoto().setIcon(pNew.getPhoto());
@@ -374,18 +371,26 @@ public class ControllerImplementation implements IController, ActionListener {
         if (update != null) {
             Person p = new Person(update.getNif().getText());
             Person pNew = read(p);
+
             if (pNew != null) {
                 update.getNam().setEnabled(true);
+                update.getPhNumber().setEnabled(true);
+                update.getEmail().setEnabled(true);
                 update.getDateOfBirth().setEnabled(true);
                 update.getPhoto().setEnabled(true);
                 update.getUpdate().setEnabled(true);
+
                 update.getNam().setText(pNew.getName());
+                update.getPhNumber().setText(pNew.getPhoneNumber());
+                update.getEmail().setText(pNew.getEmail());
+
                 if (pNew.getDateOfBirth() != null) {
                     Calendar calendar = Calendar.getInstance();
                     calendar.setTime(pNew.getDateOfBirth());
                     DateModel<Calendar> dateModel = (DateModel<Calendar>) update.getDateOfBirth().getModel();
                     dateModel.setValue(calendar);
                 }
+
                 if (pNew.getPhoto() != null) {
                     pNew.getPhoto().getImage().flush();
                     update.getPhoto().setIcon(pNew.getPhoto());
@@ -399,73 +404,63 @@ public class ControllerImplementation implements IController, ActionListener {
     }
 
     private void handleUpdatePerson() {
-        // 1. Expresión regular para el formato internacional
+        String emailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$";
         String phoneRegex = "^\\+?[0-9]{1,4}?[-.\\s]?(\\?\\d{1,3})?[-.\\s]?\\d{1,4}[-.\\s]?\\d{1,4}[-.\\s]?\\d{1,9}$";
 
-        // 2. Recuperamos el teléfono de la vista de edición
+        String emailInput = update.getEmail().getText().trim();
         String phoneInput = update.getPhNumber().getText().trim();
 
         try {
-            // 3. Validamos el número de teléfono ANTES de actualizar
+            if (emailInput.isEmpty() || !emailInput.matches(emailRegex)) {
+                throw new PersonException("Invalid email format.");
+            }
+
             if (phoneInput.isEmpty() || !phoneInput.matches(phoneRegex)) {
-                // Si es inválido, lanzamos tu excepción con el mensaje de formato
                 throw new PersonException("Invalid phone number format.");
             }
 
-            // 4. Si pasa la validación, creamos el objeto Person con el nuevo campo del teléfono
-            Person p = new Person(update.getNam().getText(), update.getNif().getText(), phoneInput);
+            Person p = new Person(update.getNam().getText(), update.getNif().getText(), emailInput, phoneInput);
 
             if (update.getDateOfBirth().getModel().getValue() != null) {
                 p.setDateOfBirth(((GregorianCalendar) update.getDateOfBirth().getModel().getValue()).getTime());
             }
+
             if (update.getPhoto().getIcon() != null) {
                 p.setPhoto((ImageIcon) update.getPhoto().getIcon());
             }
 
-            // 5. Llamamos a tu método de actualización (capa DAO)
             update(p);
 
-            // Informamos del éxito
-            javax.swing.JOptionPane.showMessageDialog(update, "Person updated successfully!", "Success", javax.swing.JOptionPane.INFORMATION_MESSAGE);
-
         } catch (PersonException ex) {
-            // 6. ERROR HANDLING: Unificamos los requisitos de error solicitados.
-            // Combinamos el mensaje de formato inválido con la petición de acción al usuario.
-            String errorMessage = ex.getMessage() + "\nPlease enter a valid phone number.";
-
-            javax.swing.JOptionPane.showMessageDialog(
+            JOptionPane.showMessageDialog(
                     update,
-                    errorMessage,
+                    ex.getMessage(),
                     "Validation Error",
-                    javax.swing.JOptionPane.ERROR_MESSAGE
+                    JOptionPane.ERROR_MESSAGE
             );
-
-            // El flujo se detiene por completo aquí. No se ejecuta el método update(p) de arriba.
         }
     }
 
     public void handleReadAll() {
         ArrayList<Person> s = readAll();
+
         if (s.isEmpty()) {
             JOptionPane.showMessageDialog(menu, "There are not people registered yet.", "Read All - People v1.1.0", JOptionPane.WARNING_MESSAGE);
         } else {
             readAll = new ReadAll(menu, true);
             DefaultTableModel model = (DefaultTableModel) readAll.getTable().getModel();
-            for (int i = 0; i < s.size(); i++) {
-                model.addRow(new Object[i]);
-                model.setValueAt(s.get(i).getNif(), i, 0);
-                model.setValueAt(s.get(i).getName(), i, 1);
-                if (s.get(i).getDateOfBirth() != null) {
-                    model.setValueAt(s.get(i).getDateOfBirth().toString(), i, 2);
-                } else {
-                    model.setValueAt("", i, 2);
-                }
-                if (s.get(i).getPhoto() != null) {
-                    model.setValueAt("yes", i, 3);
-                } else {
-                    model.setValueAt("no", i, 3);
-                }
+
+            for (Person person : s) {
+                model.addRow(new Object[]{
+                    person.getNif(),
+                    person.getName(),
+                    person.getDateOfBirth() != null ? person.getDateOfBirth().toString() : "",
+                    person.getPhoto() != null ? "yes" : "no",
+                    person.getEmail(),
+                    person.getPhoneNumber()
+                });
             }
+
             readAll.setVisible(true);
         }
     }
