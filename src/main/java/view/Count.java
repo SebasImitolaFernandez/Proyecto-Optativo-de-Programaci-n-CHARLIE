@@ -12,13 +12,14 @@ public class Count extends javax.swing.JFrame {
 
     /**
      * Creates new customizer COUNT: comment Joao
-     * 
+     *
      */
     public Count(int total) {
         initComponents();
         totalPeople.setText("Total People : " + total);
         setSize(600, 220);
         setLocationRelativeTo(null);
+        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
     }
 
     public Count() {

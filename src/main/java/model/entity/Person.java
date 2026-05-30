@@ -31,9 +31,7 @@ public class Person implements Serializable{
     @Lob
     private byte[] photoOnlyJPA;
 
-    public Person() {
-        
-    }
+   
     
     public Person(String nif) {
         this.nif = nif;
@@ -60,11 +58,19 @@ public class Person implements Serializable{
         this.photo = photo;
     }
 
-    public Person(String name, String nif, String email, String phoneNumber, Date dateOfBirth, ImageIcon photo) {
+    /**
+     * Constructor with all data
+     * @author Fran Perez
+     * @version 1.0
+     * @param name
+     * @param nif
+     * @param dateOfBirth
+     * @param photo
+     */
+    public Person(String name, String nif, String email ,  Date dateOfBirth, ImageIcon photo) {
         this.name = name;      
         this.nif = nif;
         this.email = email;
-        this.phoneNumber = phoneNumber;
         this.dateOfBirth = dateOfBirth;
         this.photo = photo;
     }
@@ -84,7 +90,7 @@ public class Person implements Serializable{
     public void setEmail(String email) {
         this.email = email;
     }
-    
+
     public String getNif() {
         return nif;
     }
