@@ -53,19 +53,24 @@ public class DAOFile implements IDAO {
 
             if (data[1].equals(p.getNif())) {
                 Date date = null;
-
-                if (!data[3].equals("null")) {
+                if (!data[4].equals("null")) {
                     DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
                     date = dateFormat.parse(data[3]);
                 }
 
                 ImageIcon photo = null;
-
-                if (!data[4].equals("null")) {
-                    photo = new ImageIcon(data[4]);
+                if (!data[5].equals("null")) {
+                    photo = new ImageIcon(data[5]);
                 }
 
-                personToRead = new Person(data[0], data[1], data[2], date, photo);
+                
+                String postalCode = null;
+                if (data.length > 6 && !data[6].equals("null")) {
+                    postalCode = data[6];
+                }
+
+                personToRead = new Person(data[0], data[1], data[2], data[3], date, photo);
+                personToRead.setPostalCode(postalCode); 
                 break;
             }
 
@@ -89,19 +94,25 @@ public class DAOFile implements IDAO {
             String data[] = line.split("\t");
 
             Date date = null;
-
-            if (!data[3].equals("null")) {
+            if (!data[4].equals("null")) {
                 DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
                 date = dateFormat.parse(data[3]);
             }
 
             ImageIcon photo = null;
-
-            if (!data[4].equals("null")) {
-                photo = new ImageIcon(data[4]);
+            if (!data[5].equals("null")) {
+                photo = new ImageIcon(data[5]);
             }
 
-            people.add(new Person(data[0], data[1], data[2], date, photo));
+            
+            String postalCode = null;
+            if (data.length > 6 && !data[6].equals("null")) {
+                postalCode = data[6];
+            }
+
+            Person person = new Person(data[0], data[1], data[2], data[3], date, photo);
+            person.setPostalCode(postalCode); 
+            people.add(person);
 
             line = br.readLine();
         }
@@ -120,8 +131,8 @@ public class DAOFile implements IDAO {
         if (p.getDateOfBirth() != null) {
             DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
             String dateAsString = dateFormat.format(p.getDateOfBirth());
-
-            bw.write(p.getName() + "\t" + p.getNif() + "\t" + p.getEmail() + "\t" + dateAsString + "\t");
+            bw.write(p.getName() + "\t" + p.getNif() + "\t" + p.getEmail() + "\t"
+                    + p.getPhoneNumber() + "\t" + dateAsString + "\t");
         } else {
             bw.write(p.getName() + "\t" + p.getNif() + "\t" + p.getEmail() + "\t" + "null" + "\t");
         }
@@ -157,7 +168,14 @@ public class DAOFile implements IDAO {
             outB.flush();
             outB.close();
 
-            bw.write(fileName + "\n");
+            bw.write(fileName + "\t");
+        } else {
+            bw.write("null" + "\t");
+        }
+
+        
+        if (p.getPostalCode() != null) {
+            bw.write(p.getPostalCode() + "\n");
         } else {
             bw.write("null" + "\n");
         }
@@ -183,7 +201,10 @@ public class DAOFile implements IDAO {
                     photoFile.delete();
                 }
             } else {
-                textoNuevo += d[0] + "\t" + d[1] + "\t" + d[2] + "\t" + d[3] + "\t" + d[4] + "\n";
+                
+                String postalCode = (d.length > 6) ? d[6] : "null";
+                textoNuevo += d[0] + "\t" + d[1] + "\t" + d[2] + "\t"
+                        + d[3] + "\t" + d[4] + "\t" + d[5] + "\t" + postalCode + "\n";
             }
         }
 
@@ -199,7 +220,6 @@ public class DAOFile implements IDAO {
         file.createNewFile();
 
         file = new File(Routes.FILE.getFolderPhotos());
-
         for (File f : file.listFiles()) {
             f.delete();
         }

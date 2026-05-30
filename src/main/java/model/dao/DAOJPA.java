@@ -17,31 +17,19 @@ import javax.persistence.Persistence;
 import javax.persistence.TypedQuery;
 import javax.swing.ImageIcon;
 
-/**
- * This class implements the IDAO interface and completes the function code
- * blocks so that they can operate with object DDBB. The NIF is used as the key.
- *
- * @author Francesc Perez
- * @version 1.1.0
- */
 public class DAOJPA implements IDAO {
 
     private EntityManagerFactory emf = Persistence.createEntityManagerFactory(Routes.DBO.getDbServerAddress());
 
     @Override
     public int count() throws Exception {
-        // Usa el método readAll() para obtener todas las personas
-        // y devuelve el tamaño de la lista
         return readAll().size();
     }
 
     private byte[] imageIconToBytes(ImageIcon icon) {
         Image image = icon.getImage();
         BufferedImage bufferedImage = new BufferedImage(
-                image.getWidth(null),
-                image.getHeight(null),
-                BufferedImage.TYPE_INT_ARGB
-        );
+                image.getWidth(null), image.getHeight(null), BufferedImage.TYPE_INT_ARGB);
         bufferedImage.getGraphics().drawImage(image, 0, 0, null);
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         try {
@@ -60,11 +48,7 @@ public class DAOJPA implements IDAO {
         } catch (IOException e) {
             return null;
         }
-        if (bufferedImage != null) {
-            return new ImageIcon(bufferedImage);
-        } else {
-            return null;
-        }
+        return bufferedImage != null ? new ImageIcon(bufferedImage) : null;
     }
 
     @Override
@@ -113,31 +97,27 @@ public class DAOJPA implements IDAO {
     public void update(Person p) throws Exception {
         EntityManager em = emf.createEntityManager();
         em.getTransaction().begin();
-
         Person pC = em.find(Person.class, p.getNif());
-
         if (pC != null) {
             pC.setName(p.getName());
             pC.setEmail(p.getEmail());
             pC.setPhoneNumber(p.getPhoneNumber());
+            pC.setPostalCode(p.getPostalCode()); 
             pC.setDateOfBirth(p.getDateOfBirth());
-
             if (p.getPhoto() != null) {
                 pC.setPhotoOnlyJPA(imageIconToBytes(p.getPhoto()));
             } else {
                 pC.setPhotoOnlyJPA(null);
             }
-
             em.getTransaction().commit();
         }
-
         em.close();
     }
 
     @Override
     public void delete(Person p) throws Exception {
         EntityManager em = emf.createEntityManager();
-        TypedQuery<Person> query = em.createQuery("SELECT p FROM Person p WHERE nif=: nifP", Person.class);
+        TypedQuery<Person> query = em.createQuery("SELECT p FROM Person p WHERE p.nif = :nifP", Person.class);
         query.setParameter("nifP", p.getNif());
         List<Person> personas = query.getResultList();
         em.getTransaction().begin();
@@ -145,6 +125,7 @@ public class DAOJPA implements IDAO {
             em.remove(pR);
         }
         em.getTransaction().commit();
+        em.close(); 
     }
 
     @Override
@@ -157,6 +138,7 @@ public class DAOJPA implements IDAO {
             em.remove(pR);
         }
         em.getTransaction().commit();
+        em.close();
     }
 
-}
+} 
