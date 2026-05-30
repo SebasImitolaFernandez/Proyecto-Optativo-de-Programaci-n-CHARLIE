@@ -457,11 +457,69 @@ public class ControllerImplementation implements IController, ActionListener {
                     person.getPhoto() != null ? "yes" : "no",
                     person.getEmail(),
                     person.getPhoneNumber(),
-                    person.getPostalCode() != null ? person.getPostalCode() : "" // NOVO
+                    person.getPostalCode() != null ? person.getPostalCode() : "" // NUEVO - postal code
                 });
             }
 
+            // NUEVO - vinculamos el botón de exportar con el método correspondiente
+            readAll.getExportData().addActionListener(e -> handleExportCSV());
+
             readAll.setVisible(true);
+        }
+    }
+
+    private void handleExportCSV() {
+        try {
+            // Generamos el nombre del archivo con la fecha actual en formato yyyyMMdd
+            String date = new java.text.SimpleDateFormat("yyyyMMdd").format(new java.util.Date());
+            String fileName = "people_data_" + date + ".csv";
+
+            // Abrimos el diálogo para que el usuario elija dónde guardar el archivo
+            javax.swing.JFileChooser fileChooser = new javax.swing.JFileChooser();
+            fileChooser.setSelectedFile(new java.io.File(fileName));
+            int result = fileChooser.showSaveDialog(null);
+
+            if (result == javax.swing.JFileChooser.APPROVE_OPTION) {
+                java.io.File file = fileChooser.getSelectedFile();
+
+                java.io.BufferedWriter bw = new java.io.BufferedWriter(new java.io.FileWriter(file));
+
+                // Escribimos la cabecera del CSV
+                bw.write("NIF,Name,Date of Birth,Photo,Email,Phone number,Postal Code");
+                bw.newLine();
+
+                // Obtenemos el modelo de la tabla y escribimos cada fila
+                DefaultTableModel model = (DefaultTableModel) readAll.getTable().getModel();
+
+                for (int i = 0; i < model.getRowCount(); i++) {
+                    StringBuilder row = new StringBuilder();
+                    for (int j = 0; j < model.getColumnCount(); j++) {
+                        Object value = model.getValueAt(i, j);
+                        row.append(value != null ? value.toString() : "");
+                        if (j < model.getColumnCount() - 1) {
+                            row.append(",");
+                        }
+                    }
+                    bw.write(row.toString());
+                    bw.newLine();
+                }
+
+                bw.flush();
+                bw.close();
+
+                // Mostramos mensaje de éxito con el nombre del archivo generado
+                JOptionPane.showMessageDialog(null,
+                        "Data exported successfully as " + file.getName(),
+                        "Export CSV",
+                        JOptionPane.INFORMATION_MESSAGE);
+            }
+
+        } catch (Exception ex) {
+            // Mostramos mensaje de error si algo falla durante la exportación
+            JOptionPane.showMessageDialog(null,
+                    "Error exporting data: " + ex.getMessage(),
+                    "Export CSV",
+                    JOptionPane.ERROR_MESSAGE);
         }
     }
 
