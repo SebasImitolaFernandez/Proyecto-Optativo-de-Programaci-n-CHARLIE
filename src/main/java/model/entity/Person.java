@@ -3,6 +3,7 @@ package model.entity;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.Objects;
+import java.util.regex.Pattern;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Lob;
@@ -10,35 +11,37 @@ import javax.persistence.Transient;
 import javax.swing.ImageIcon;
 
 /**
- * Encapsulated class that defines the type of entity that will manage the application.
+ * Encapsulated class that defines the type of entity that will manage the
+ * application.
+ *
  * @author Fran Perez
  * @version 1.1.0
  */
 @Entity
-public class Person implements Serializable{
+public class Person implements Serializable {
 
-
-    @Id 
+    @Id
     private String nif;
     private String name;
     private String email;
     private Date dateOfBirth;
     private String phoneNumber;
-
+    private String postalCode;  // NOVO
     @Transient
     private ImageIcon photo;
-
     @Lob
     private byte[] photoOnlyJPA;
 
+    // Regex para validar postal code (formato: 12345 ou 12345-6789)
+    private static final String POSTAL_CODE_REGEX = "^\\d{5}(?:[-\\s]?\\d{4})?$";
+
     public Person() {
-        
     }
-    
+
     public Person(String nif) {
         this.nif = nif;
     }
-    
+
     public Person(String name, String nif, String phoneNumber) {
         this.name = name;
         this.nif = nif;
@@ -53,7 +56,7 @@ public class Person implements Serializable{
     }
 
     public Person(String name, String nif, String phoneNumber, Date dateOfBirth, ImageIcon photo) {
-        this.name = name;      
+        this.name = name;
         this.nif = nif;
         this.phoneNumber = phoneNumber;
         this.dateOfBirth = dateOfBirth;
@@ -61,12 +64,40 @@ public class Person implements Serializable{
     }
 
     public Person(String name, String nif, String email, String phoneNumber, Date dateOfBirth, ImageIcon photo) {
-        this.name = name;      
+        this.name = name;
         this.nif = nif;
         this.email = email;
         this.phoneNumber = phoneNumber;
         this.dateOfBirth = dateOfBirth;
         this.photo = photo;
+    }
+
+    // Construtor com postalCode  // NOVO
+    public Person(String name, String nif, String email, String phoneNumber, String postalCode, Date dateOfBirth, ImageIcon photo) {
+        this.name = name;
+        this.nif = nif;
+        this.email = email;
+        this.phoneNumber = phoneNumber;
+        this.postalCode = postalCode;
+        this.dateOfBirth = dateOfBirth;
+        this.photo = photo;
+    }
+
+    // Getter e Setter do postalCode com validação  // NOVO
+    public String getPostalCode() {
+        return postalCode;
+    }
+
+    public void setPostalCode(String postalCode) {
+        if (postalCode != null && !Pattern.matches(POSTAL_CODE_REGEX, postalCode)) {
+            throw new IllegalArgumentException("Invalid postal code format.");
+        }
+        this.postalCode = postalCode;
+    }
+
+    // Método para validar o postalCode  // NOVO
+    public static boolean isValidPostalCode(String postalCode) {
+        return postalCode != null && Pattern.matches(POSTAL_CODE_REGEX, postalCode);
     }
 
     public String getName() {
@@ -84,11 +115,10 @@ public class Person implements Serializable{
     public void setEmail(String email) {
         this.email = email;
     }
-    
+
     public String getNif() {
         return nif;
     }
-    
 
     public void setNif(String nif) {
         this.nif = nif;
@@ -101,7 +131,7 @@ public class Person implements Serializable{
     public void setDateOfBirth(Date dateOfBirth) {
         this.dateOfBirth = dateOfBirth;
     }
-    
+
     public String getPhoneNumber() {
         return phoneNumber;
     }
@@ -125,7 +155,7 @@ public class Person implements Serializable{
     public void setPhotoOnlyJPA(byte[] photoOnlyJPA) {
         this.photoOnlyJPA = photoOnlyJPA;
     }
-        
+
     @Override
     public int hashCode() {
         int hash = 7;
@@ -150,11 +180,12 @@ public class Person implements Serializable{
 
     @Override
     public String toString() {
-        return "Person {" + "Name = " + name 
+        return "Person {" + "Name = " + name
                 + ", NIF = " + nif
                 + ", Email = " + email
-                + ", PhoneNumber = " + phoneNumber 
-                + ", DateOfBirth = " + dateOfBirth 
+                + ", PhoneNumber = " + phoneNumber
+                + ", PostalCode = " + postalCode // NOVO
+                + ", DateOfBirth = " + dateOfBirth
                 + ", Photo = " + (photo != null) + "}";
     }
 }
