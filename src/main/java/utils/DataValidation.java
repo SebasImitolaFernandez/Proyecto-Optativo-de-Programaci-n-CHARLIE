@@ -13,6 +13,16 @@ public class DataValidation {
     public static boolean isNumber(char c) {
         return (48 <= c && c <= 57);
     }
+    
+ /*==============================================================
+ Valida si el formato del email es correcto.
+    - param email email que se quiere validar
+    - return true si el email tiene un formato válido, false si no
+ ===============================================================*/
+public static boolean isValidEmail(String email) {
+    String emailRegex = "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$";
+    return email != null && email.matches(emailRegex);
+}
 
     public static boolean isLetter(char c) {
         //The name can contain uppercase and lowercase letters, whitespace, 

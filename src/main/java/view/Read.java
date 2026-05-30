@@ -269,7 +269,7 @@ public class Read extends javax.swing.JDialog {
         gridBagConstraints.insets = new java.awt.Insets(12, 12, 12, 12);
         getContentPane().add(jLabel4, gridBagConstraints);
 
-        email.setText("\"Enter full Email\"");
+        email.setText("\"Enter full email\"");
         email.setEnabled(false);
         email.setMaximumSize(new java.awt.Dimension(400, 22));
         email.setMinimumSize(new java.awt.Dimension(400, 22));
@@ -361,17 +361,18 @@ public class Read extends javax.swing.JDialog {
         phNumber.setText("");
         postalCode.setText(""); 
         photo.setIcon(null);
-        
-        //We reset the calendar date to the current date ...
+
         LocalDate dateLocate = LocalDate.now();
         ZoneId systemTimeZone = ZoneId.systemDefault();
         ZonedDateTime zonedDateTime = dateLocate.atStartOfDay(systemTimeZone);
         Date dateUtil = java.sql.Date.from(zonedDateTime.toInstant());
+
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(dateUtil);
+
         DateModel<Calendar> dateModel = (DateModel<Calendar>) dateOfBirth.getModel();
         dateModel.setValue(calendar);
-        //... but do not display it in the JDatePicker box
+
         dateOfBirth.getModel().setValue(null);
     }//GEN-LAST:event_resetActionPerformed
 

@@ -42,18 +42,20 @@ public class DAOFile implements IDAO {
     @Override
     public Person read(Person p) throws Exception {
         Person personToRead = null;
-        BufferedReader br = new BufferedReader(new FileReader(Routes.FILE.getDataFile()));
+
+        FileReader fr = new FileReader(Routes.FILE.getDataFile());
+        BufferedReader br = new BufferedReader(fr);
 
         String line = br.readLine();
 
         while (line != null) {
-            String[] data = line.split("\t");
+            String data[] = line.split("\t");
 
             if (data[1].equals(p.getNif())) {
                 Date date = null;
                 if (!data[4].equals("null")) {
                     DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
-                    date = dateFormat.parse(data[4]);
+                    date = dateFormat.parse(data[3]);
                 }
 
                 ImageIcon photo = null;
@@ -82,17 +84,19 @@ public class DAOFile implements IDAO {
     @Override
     public ArrayList<Person> readAll() throws FileNotFoundException, IOException, ParseException {
         ArrayList<Person> people = new ArrayList<>();
-        BufferedReader br = new BufferedReader(new FileReader(Routes.FILE.getDataFile()));
+
+        FileReader fr = new FileReader(Routes.FILE.getDataFile());
+        BufferedReader br = new BufferedReader(fr);
 
         String line = br.readLine();
 
         while (line != null) {
-            String[] data = line.split("\t");
+            String data[] = line.split("\t");
 
             Date date = null;
             if (!data[4].equals("null")) {
                 DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
-                date = dateFormat.parse(data[4]);
+                date = dateFormat.parse(data[3]);
             }
 
             ImageIcon photo = null;
@@ -120,7 +124,9 @@ public class DAOFile implements IDAO {
     @Override
     public void insert(Person p) throws IOException {
         String sep = File.separator;
-        BufferedWriter bw = new BufferedWriter(new FileWriter(Routes.FILE.getDataFile(), true));
+
+        FileWriter fw = new FileWriter(Routes.FILE.getDataFile(), true);
+        BufferedWriter bw = new BufferedWriter(fw);
 
         if (p.getDateOfBirth() != null) {
             DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
@@ -128,15 +134,17 @@ public class DAOFile implements IDAO {
             bw.write(p.getName() + "\t" + p.getNif() + "\t" + p.getEmail() + "\t"
                     + p.getPhoneNumber() + "\t" + dateAsString + "\t");
         } else {
-            bw.write(p.getName() + "\t" + p.getNif() + "\t" + p.getEmail() + "\t"
-                    + p.getPhoneNumber() + "\t" + "null" + "\t");
+            bw.write(p.getName() + "\t" + p.getNif() + "\t" + p.getEmail() + "\t" + "null" + "\t");
         }
 
         if (p.getPhoto() != null) {
+            FileOutputStream out;
+            BufferedOutputStream outB;
+
             String fileName = Routes.FILE.getFolderPhotos() + sep + p.getNif() + ".png";
 
-            FileOutputStream out = new FileOutputStream(fileName);
-            BufferedOutputStream outB = new BufferedOutputStream(out);
+            out = new FileOutputStream(fileName);
+            outB = new BufferedOutputStream(out);
 
             BufferedImage bi = new BufferedImage(
                     p.getPhoto().getImage().getWidth(null),
@@ -153,8 +161,8 @@ public class DAOFile implements IDAO {
             byte[] img = baos.toByteArray();
             baos.close();
 
-            for (byte b : img) {
-                outB.write(b);
+            for (int i = 0; i < img.length; i++) {
+                outB.write(img[i]);
             }
 
             outB.flush();
@@ -179,15 +187,16 @@ public class DAOFile implements IDAO {
     @Override
     public void delete(Person p) throws IOException {
         String sep = File.separator;
+
         RandomAccessFile rafRW = new RandomAccessFile(Routes.FILE.getDataFile(), "rw");
         String textoNuevo = "";
 
         while (rafRW.getFilePointer() < rafRW.length()) {
             String l = rafRW.readLine();
-            String[] d = l.split("\t");
+            String d[] = l.split("\t");
 
             if (p.getNif().equals(d[1])) {
-                if (!d[5].equals("null")) {
+                if (!d[4].equals("null")) {
                     File photoFile = new File(Routes.FILE.getFolderPhotos() + sep + p.getNif() + ".png");
                     photoFile.delete();
                 }

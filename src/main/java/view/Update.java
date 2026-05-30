@@ -68,6 +68,10 @@ public class Update extends javax.swing.JDialog {
         return nif;
     }
 
+    public JTextField getEmail() {
+        return email;
+    }
+
     public JLabel getPhoto() {
         return photo;
     }
@@ -97,8 +101,6 @@ public class Update extends javax.swing.JDialog {
         jLabel2 = new javax.swing.JLabel();
         read = new javax.swing.JButton();
         jLabel4 = new javax.swing.JLabel();
-        phNumber = new javax.swing.JTextField();
-        jLabel5 = new javax.swing.JLabel();
         email = new javax.swing.JTextField();
         jLabel6 = new javax.swing.JLabel();
         postalCode = new javax.swing.JTextField();
@@ -112,6 +114,18 @@ public class Update extends javax.swing.JDialog {
         update.setMaximumSize(new java.awt.Dimension(194, 33));
         update.setMinimumSize(new java.awt.Dimension(194, 33));
         update.setPreferredSize(new java.awt.Dimension(194, 33));
+        update.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                updateActionPerformed(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 4;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(12, 12, 12, 12);
+        getContentPane().add(update, gridBagConstraints);
 
         jLabel1.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
         jLabel1.setText("NIF ");
@@ -174,11 +188,26 @@ public class Update extends javax.swing.JDialog {
         jLabel8.setMaximumSize(new java.awt.Dimension(150, 22));
         jLabel8.setMinimumSize(new java.awt.Dimension(159, 22));
         jLabel8.setPreferredSize(new java.awt.Dimension(150, 22));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 3;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(12, 12, 12, 12);
+        getContentPane().add(jLabel8, gridBagConstraints);
 
         dateOfBirth.setEnabled(false);
         dateOfBirth.setMaximumSize(new java.awt.Dimension(359, 22));
         dateOfBirth.setMinimumSize(new java.awt.Dimension(350, 22));
         dateOfBirth.setPreferredSize(new java.awt.Dimension(350, 22));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 2;
+        gridBagConstraints.gridy = 3;
+        gridBagConstraints.gridwidth = 3;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(12, 12, 12, 24);
+        getContentPane().add(dateOfBirth, gridBagConstraints);
 
         reset.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
         reset.setText("RESET");
@@ -190,44 +219,57 @@ public class Update extends javax.swing.JDialog {
                 resetActionPerformed(evt);
             }
         });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 3;
+        gridBagConstraints.gridy = 4;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(12, 12, 12, 24);
+        getContentPane().add(reset, gridBagConstraints);
 
         jLabel2.setFont(new java.awt.Font("Segoe UI", 2, 8)); // NOI18N
         jLabel2.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel2.setText("Author: francesc.perez@stucom.com - Version 1.1.0");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 5;
+        gridBagConstraints.gridwidth = 5;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(12, 24, 12, 12);
+        getContentPane().add(jLabel2, gridBagConstraints);
 
         read.setText("readnoVisible");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 4;
+        gridBagConstraints.gridy = 4;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.insets = new java.awt.Insets(6, 6, 6, 12);
+        getContentPane().add(read, gridBagConstraints);
 
         jLabel4.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
-        jLabel4.setText("phone Number");
+        jLabel4.setText("Email");
         jLabel4.setMaximumSize(new java.awt.Dimension(100, 22));
         jLabel4.setMinimumSize(new java.awt.Dimension(100, 22));
         jLabel4.setPreferredSize(new java.awt.Dimension(100, 22));
-
-        phNumber.setText("\"Enter full phone number\"");
-        phNumber.setEnabled(false);
-        phNumber.setMaximumSize(new java.awt.Dimension(400, 22));
-        phNumber.setMinimumSize(new java.awt.Dimension(400, 22));
-        phNumber.setPreferredSize(new java.awt.Dimension(400, 22));
-        phNumber.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyPressed(java.awt.event.KeyEvent evt) {
-                phNumberKeyPressed(evt);
-            }
-            public void keyReleased(java.awt.event.KeyEvent evt) {
-                phNumberKeyReleased(evt);
-            }
-        });
-
-        jLabel5.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
-        jLabel5.setText("Email");
-        jLabel5.setMaximumSize(new java.awt.Dimension(100, 22));
-        jLabel5.setMinimumSize(new java.awt.Dimension(100, 22));
-        jLabel5.setPreferredSize(new java.awt.Dimension(100, 22));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.insets = new java.awt.Insets(12, 12, 12, 12);
+        getContentPane().add(jLabel4, gridBagConstraints);
 
         email.setText("\"Enter full email\"");
         email.setEnabled(false);
         email.setMaximumSize(new java.awt.Dimension(400, 22));
         email.setMinimumSize(new java.awt.Dimension(400, 22));
         email.setPreferredSize(new java.awt.Dimension(400, 22));
+        email.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                emailActionPerformed(evt);
+            }
+        });
         email.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyPressed(java.awt.event.KeyEvent evt) {
                 emailKeyPressed(evt);
@@ -384,7 +426,6 @@ public class Update extends javax.swing.JDialog {
         nif.setEditable(true);
         nif.setText("");
         name.setText("");
-        phNumber.setText("");
         email.setText("");
         postalCode.setText(""); 
 
@@ -392,24 +433,24 @@ public class Update extends javax.swing.JDialog {
         photo.setIcon(null);
 
         name.setEnabled(false);
-        phNumber.setEnabled(false);
         email.setEnabled(false);
         postalCode.setEnabled(false);
         photo.setEnabled(false);
 
-        //We reset the calendar date to the current date ...
         LocalDate dateLocate = LocalDate.now();
         ZoneId systemTimeZone = ZoneId.systemDefault();
         ZonedDateTime zonedDateTime = dateLocate.atStartOfDay(systemTimeZone);
         Date dateUtil = java.sql.Date.from(zonedDateTime.toInstant());
+
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(dateUtil);
+
         DateModel<Calendar> dateModel = (DateModel<Calendar>) dateOfBirth.getModel();
         dateModel.setValue(calendar);
 
-        //... but do not display it in the JDatePicker box
         dateOfBirth.getModel().setValue(null);
         dateOfBirth.setEnabled(false);
+
         update.setEnabled(false);
 
     }//GEN-LAST:event_resetActionPerformed
@@ -427,7 +468,7 @@ public class Update extends javax.swing.JDialog {
     }//GEN-LAST:event_nameKeyPressed
 
     private void nameKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_nameKeyReleased
-        if (name.getText().length() == 0) {
+        if (name.getText().trim().isEmpty() || email.getText().trim().isEmpty()) {
             update.setEnabled(false);
         } else if (!nif.getText().isEmpty()) {
             update.setEnabled(true);
@@ -438,34 +479,18 @@ public class Update extends javax.swing.JDialog {
         photo.setIcon(null);
     }//GEN-LAST:event_photoMouseClicked
 
-    private void phNumberKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_phNumberKeyPressed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_phNumberKeyPressed
-
-    private void phNumberKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_phNumberKeyReleased
-        if (!name.getText().trim().isEmpty()
-                && !phNumber.getText().trim().isEmpty()
-                && !email.getText().trim().isEmpty()
-                && !nif.getText().trim().isEmpty()) {
-            update.setEnabled(true);
-        } else {
-            update.setEnabled(false);
-        }
-    }//GEN-LAST:event_phNumberKeyReleased
-
     private void emailKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_emailKeyPressed
-        if (!name.getText().trim().isEmpty()
-                && !phNumber.getText().trim().isEmpty()
-                && !email.getText().trim().isEmpty()
-                && !nif.getText().trim().isEmpty()) {
-            update.setEnabled(true);
-        } else {
-            update.setEnabled(false);
-        }
+        // TODO add your handling code here:
     }//GEN-LAST:event_emailKeyPressed
 
     private void emailKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_emailKeyReleased
-        // TODO add your handling code here:
+
+        if (name.getText().trim().isEmpty() || email.getText().trim().isEmpty()) {
+            update.setEnabled(false);
+        } else if (!nif.getText().isEmpty()) {
+            update.setEnabled(true);
+        }
+
     }//GEN-LAST:event_emailKeyReleased
 
     private void postalCodeKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_postalCodeKeyPressed
